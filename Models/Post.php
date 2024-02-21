@@ -11,9 +11,9 @@ class Post implements Model
   use GenericModel;
 
   public function __construct(
-    private int $id,
-    private int $replay_to_id,
-    private string $subject,
+    private ?int $id = null,
+    private ?int $replay_to_id = null,
+    private ?string $subject = null,
     private string $content,
     private DataTimeStamp $created_at,
     private DataTimeStamp $updated_at
@@ -30,7 +30,7 @@ class Post implements Model
     $this->id = $id;
   }
 
-  public function getReplayId(): int
+  public function getReplayId(): ?int
   {
     return $this->replay_to_id;
   }
@@ -40,7 +40,7 @@ class Post implements Model
     $this->replay_to_id = $replay_to_id;
   }
 
-  public function getSubject(): string
+  public function getSubject(): ?string
   {
     return $this->subject;
   }
