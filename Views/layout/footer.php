@@ -1,12 +1,10 @@
 </main> <!-- end of content -->
-
-<footer class="bg-light text-center text-lg-start">
-  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-    © <?= date('Y') ?>:
-    <a class="text-dark" href="/">MyComputerPartsStore.com</a>
+<footer class="bg-gray-200 text-center text-sm text-gray-600 mt-auto">
+  <div class="p-3">
+    © 2024
+    <a class="text-gray-800" href="/">ImageBoardWebApp</a>
   </div>
 </footer>
-
 </body>
 
 </html>

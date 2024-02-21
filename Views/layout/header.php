@@ -12,5 +12,7 @@
   <title>Image Board Webapp</title>
 </head>
 
-<body>
-  <main class="container mt-5 mb-5">
+<body class="flex flex-col h-screen max-h-screen min-w-screen bg-gray-100">
+  <header class="text-4xl py-5 text-center font-bold">
+    Image Board Webapp
+  </header>
