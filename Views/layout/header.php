@@ -16,3 +16,4 @@
   <header class="text-4xl py-5 text-center font-bold">
     Image Board Webapp
   </header>
+  <div class="flex flex-col justify-center w-5/6 mx-auto">
