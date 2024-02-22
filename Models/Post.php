@@ -11,12 +11,11 @@ class Post implements Model
   use GenericModel;
 
   public function __construct(
-    private ?int $id = null,
-    private ?int $replay_to_id = null,
-    private ?string $subject = null,
     private string $content,
-    private DataTimeStamp $created_at,
-    private DataTimeStamp $updated_at
+    private ?string $subject = null,
+    private ?int $id = null,
+    private ?int $reply_to_id = null,
+    private ?DataTimeStamp $timeStamp = null
   ) {
   }
 
@@ -30,14 +29,14 @@ class Post implements Model
     $this->id = $id;
   }
 
-  public function getReplayId(): ?int
+  public function getReplyToId(): ?int
   {
-    return $this->replay_to_id;
+    return $this->reply_to_id;
   }
 
-  public function setReplayId(int $replay_to_id): void
+  public function setReplyToId(int $reply_to_id): void
   {
-    $this->replay_to_id = $replay_to_id;
+    $this->reply_to_id = $reply_to_id;
   }
 
   public function getSubject(): ?string
@@ -60,23 +59,13 @@ class Post implements Model
     $this->content = $content;
   }
 
-  public function getCreatedAt(): DataTimeStamp
+  public function getTimeStamp(): ?DataTimeStamp
   {
-    return $this->created_at;
+    return $this->timeStamp;
   }
 
-  public function setCreatedAt(DataTimeStamp $created_at): void
+  public function setTimeStamp(DataTimeStamp $timeStamp): void
   {
-    $this->created_at = $created_at;
-  }
-
-  public function getUpdatedAt(): DataTimeStamp
-  {
-    return $this->updated_at;
-  }
-
-  public function setUpdatedAt(DataTimeStamp $updated_at): void
-  {
-    $this->updated_at = $updated_at;
+    $this->timeStamp = $timeStamp;
   }
 }

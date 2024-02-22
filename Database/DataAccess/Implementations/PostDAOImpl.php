@@ -44,29 +44,23 @@ class PostDAOImpl implements PostDAO
   public function createOrUpdate(Post $postData): bool
   {
     $mysqli = DatabaseManager::getMysqliConnection();
-
     $query =
       <<<SQL
-          INSERT INTO posts (id, reply_to_id, subject, content, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?)
-          ON DUPLICATE KEY UPDATE id = VALUES(id),
-          reply_to_id = VALUES(reply_to_id),
-          subject = VALUES(subject),
-          content = VALUES(content),
-          created_at = VALUES(created_at),
-          updated_at = VALUES(updated_at);
-      SQL;
+        INSERT INTO posts (reply_to_id, subject, content)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+        reply_to_id = VALUES(reply_to_id),
+        subject = VALUES(subject),
+        content = VALUES(content);
+    SQL;
 
     $result = $mysqli->prepareAndExecute(
       $query,
-      'iissss',
+      'iss',
       [
-        $postData->getId(),
-        $postData->getReplayId(),
+        $postData->getReplyToId(),
         $postData->getSubject(),
         $postData->getContent(),
-        $postData->getCreatedAt(),
-        $postData->getUpdatedAt()
       ]
     );
     if (!$result) return false;
@@ -74,10 +68,8 @@ class PostDAOImpl implements PostDAO
     // insert_id returns the last inserted ID.
     if ($postData->getId() === null) {
       $postData->setId($mysqli->insert_id);
-      $created_at = $postData->getCreatedAt() ?? new DataTimeStamp(date('Y-m-h'), date('Y-m-h'));
-      $updated_at = $postData->getUpdatedAt() ?? new DataTimeStamp(date('Y-m-h'), date('Y-m-h'));
-      $postData->setCreatedAt($created_at);
-      $postData->setUpdatedAt($updated_at);
+      $timeStamp = $postData->getTimeStamp() ?? new DataTimeStamp(date('Y-m-h'), date('Y-m-h'));
+      $postData->setTimeStamp($timeStamp);
     }
     return true;
   }
@@ -85,31 +77,35 @@ class PostDAOImpl implements PostDAO
   public function getAllThreads(int $offset, int $limit): array
   {
     $mysqli = DatabaseManager::getMysqliConnection();
-    $query = "SELECT * FROM posts WHERE reply_to_id IS NULL LIMIT ?, ?";
-    $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
 
+    $query = "SELECT * FROM posts LIMIT ?, ?";
+
+    $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
+    
     return $results === null ? [] : $this->resultsPosts($results);
   }
 
   public function getReplies(Post $postData, int $offset, int $limit): array
   {
     $mysqli = DatabaseManager::getMysqliConnection();
+
     $query = "SELECT * FROM posts WHERE reply_to_id = ? LIMIT ?, ?";
+
     $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
+
 
     return $results === null ? [] : $this->resultsPosts($results);
   }
 
-  private function resultToPost(array $data): ?Post
+  private function resultToPost(array $data): Post
   {
     return new Post(
-        $data['id'],
-        $data['reply_to_id'],
-        $data['subject'],
-        $data['content'],
-        $data['created_at'],
-        $data['updated_at']
-      );
+      content: $data['content'],
+      subject: $data['subject'],
+      id: $data['id'],
+      reply_to_id: $data['reply_to_id'],
+      timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
+    );
   }
 
   private function resultsPosts(array $results): array
