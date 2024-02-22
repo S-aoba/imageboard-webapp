@@ -1,10 +1,12 @@
 // 続きを読むリンクをクリックした際に返信を表示する
-const readMoreLink = document.querySelector('.read-more');
-const replies = document.querySelector('.replies');
+const readMoreLinks = document.querySelectorAll('.read-more');
 
-readMoreLink.addEventListener('click', function (event) {
-  event.preventDefault();
-  replies.classList.toggle('hidden');
+readMoreLinks.forEach((readMoreLink) => {
+  readMoreLink.addEventListener('click', function (event) {
+    event.preventDefault();
+    const replies = this.closest('.bg-gray-200').querySelector('.replies');
+    replies.classList.toggle('hidden');
+  });
 });
 
 const form = document.getElementById('postForm');
