@@ -97,7 +97,16 @@ return [
     $postDao = new PostDAOImpl();
     $posts = $postDao->getAllThreads(0, 5);
 
-    return new  HTMLRenderer('component/top', ['threads' => $posts]);
+    $data_list = []; // [ {"post": $post, "replies": $replies} ]
+
+    foreach ($posts as $post) {
+      $replies = $postDao->getReplies($post, 0, 5);
+      $data_list[] = [
+        "post" => $post,
+        "replies" => $replies
+      ];
+    }
+    return new  HTMLRenderer('component/top', ['data_list' => $data_list]);
   },
   "form/post/thread" => function (): HTTPRenderer {
     try {
@@ -135,5 +144,43 @@ return [
       error_log($e->getMessage());
       return new JSONRenderer(['status' => 'error', 'message' => 'An error occurred.']);
     }
-  }
+  },
+
+  "form/post/reply" => function (): HTTPRenderer {
+    try {
+      // リクエストメソッドがPOSTかどうかをチェックします
+      if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Invalid request method!');
+      }
+
+      $required_fields = [
+        'content' => ValueType::STRING,
+        'reply_to_id' => ValueType::INT,
+      ];
+      $postDao = new PostDAOImpl();
+      $validatedData = ValidationHelper::validateFields($required_fields, $_POST);
+
+      // 名前付き引数を持つ新しいComputerPartオブジェクトの作成＋アンパッキング
+      $postData = new Post(...$validatedData);
+
+      error_log(json_encode($postData->toArray(), JSON_PRETTY_PRINT));
+
+      // 新しい部品情報でデータベースの更新を試みます。
+      // 別の方法として、createOrUpdateを実行することもできます。
+      $success = $postDao->create($postData);
+
+      if (!$success) {
+        throw new Exception('Thread create failed!');
+      }
+
+      return new JSONRenderer(['status' => 'success', 'message' => 'Part updated successfully']);
+    } catch (Exception $e) {
+      error_log($e->getMessage());
+      return new JSONRenderer(['status' => 'error', 'message' => 'An error occurred.']);
+    } catch (\InvalidArgumentException $e) {
+      error_log($e->getMessage()); // エラーログはPHPのログやstdoutから見ることができます。
+      return new JSONRenderer(['status' => 'error', 'message' => 'Invalid data.']);
+    }
+  },
+
 ];
