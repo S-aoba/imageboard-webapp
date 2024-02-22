@@ -13,7 +13,7 @@
   </form>
 </div>
 <!-- スレッド一覧 -->
-<div class="bg-white rounded-lg p-4 shadow">
+<div class="bg-white rounded-lg p-4 shadow mb-4">
   <h2 class="text-xl font-semibold mb-4">スレッド一覧</h2>
   <!-- スレッド一覧の表示 -->
   <div class="space-y-4">
