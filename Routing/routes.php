@@ -127,6 +127,15 @@ return [
       $postDao = new PostDAOImpl();
       $validatedData = ValidationHelper::validateFields($required_fields, $_POST);
 
+      // 画像を取得して/public/uploads/img/配下にファイル名をハッシュ化して保存
+      $image = $_FILES['image'];
+      // idとcreated_atを使ってファイル名をハッシュ化
+      // 画像の拡張子を取得
+      $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
+      if (!ValidationHelper::checkFileExtension($extension)) {
+        return new JSONRenderer(['status' => 'Invalid File Type', 'message' => 'ご利用の画像の形式はサポートされていません。jpeg、png、gif のいずれかをお試しください。']);
+      }
+
       // 名前付き引数を持つ新しいComputerPartオブジェクトの作成＋アンパッキング
       $postData = new Post(...$validatedData);
 
@@ -141,13 +150,6 @@ return [
         throw new Exception('Thread create failed!');
       }
 
-      // 画像を取得して/public/uploads/img/配下にファイル名をハッシュ化して保存
-      $image = $_FILES['image'];
-
-      // idとcreated_atを使ってファイル名をハッシュ化
-      // 画像の拡張子を取得
-      $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
-      
       ImageFileHelper::saveImageFile(ImageFileHelper::hashedFileName($postData), $extension);
 
       return new JSONRenderer(['status' => 'success', 'message' => 'Part updated successfully']);

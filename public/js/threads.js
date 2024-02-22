@@ -85,6 +85,9 @@ form.addEventListener('submit', function (event) {
         } else if (data.status === 'error') {
           console.error(data.message);
           alert('作成に失敗しました。再度やり直してください。: ' + data.message);
+        } else if (data.status === 'Invalid File Type') {
+          console.error(data.message);
+          alert(data.message);
         }
       })
       .catch((error) => {
