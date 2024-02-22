@@ -1,5 +1,6 @@
 <?php
 
+
 namespace Database\DataAccess\Implementations;
 
 use Database\DataAccess\Interfaces\PostDAO;
@@ -68,7 +69,9 @@ class PostDAOImpl implements PostDAO
     // insert_id returns the last inserted ID.
     if ($postData->getId() === null) {
       $postData->setId($mysqli->insert_id);
-      $timeStamp = $postData->getTimeStamp() ?? new DataTimeStamp(date('Y-m-h'), date('Y-m-h'));
+      // 日本時間に設定
+      date_default_timezone_set('Asia/Tokyo');
+      $timeStamp = $postData->getTimeStamp() ?? new DataTimeStamp(date('Y-m-d H:i:s'), date('Y-m-d H:i:s'));
       $postData->setTimeStamp($timeStamp);
     }
     return true;

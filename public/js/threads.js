@@ -1,3 +1,14 @@
+document.getElementById('image').addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById('preview-image').setAttribute('src', e.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   // スレッドの続きを読むリンクにイベントリスナーを追加
   const readMoreLinks = document.querySelectorAll('.read-more');
@@ -55,6 +66,11 @@ form.addEventListener('submit', function (event) {
   event.preventDefault();
 
   const formData = new FormData(form);
+  const fileInput = document.getElementById('image');
+  const file = fileInput.files[0]; // ファイル選択要素から選択されたファイルを取得
+
+  formData.append('image', file); // 画像ファイルをFormDataに追加
+
   fetch('/form/post/thread', {
     method: 'POST',
     body: formData,
@@ -67,13 +83,11 @@ form.addEventListener('submit', function (event) {
           alert('スレッドを作成しました');
           // if (!formData.has('id')) form.reset(); 後ほど実装
         } else if (data.status === 'error') {
-          // ユーザーにエラーメッセージを表示します
           console.error(data.message);
           alert('作成に失敗しました。再度やり直してください。: ' + data.message);
         }
       })
       .catch((error) => {
-        // ネットワークエラーかJSONの解析エラー
         console.error('Error:', error);
         alert('時間を置いてから再度実行してください.');
       });

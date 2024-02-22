@@ -5,7 +5,7 @@ use Models\Post;
 use Response\HTTPRenderer;
 use Response\Render\HTMLRenderer;
 use Database\DataAccess\Implementations\PostDAOImpl;
-use Helpers\DatabaseHelper;
+use Helpers\ImageFileHelper;
 use Response\Render\JSONRenderer;
 use Types\ValueType;
 
@@ -101,11 +101,16 @@ return [
 
     foreach ($posts as $post) {
       $replies = $postDao->getReplies($post, 0, 5);
+      $thumbnail = ImageFileHelper::getImageFile(ImageFileHelper::hashedFileName($post));
+
       $data_list[] = [
         "post" => $post,
-        "replies" => $replies
+        "replies" => $replies,
+        "thumbnail" => $thumbnail
       ];
     }
+
+
     return new  HTMLRenderer('component/top', ['data_list' => $data_list]);
   },
   "form/post/thread" => function (): HTTPRenderer {
@@ -135,6 +140,15 @@ return [
       if (!$success) {
         throw new Exception('Thread create failed!');
       }
+
+      // 画像を取得して/public/uploads/img/配下にファイル名をハッシュ化して保存
+      $image = $_FILES['image'];
+
+      // idとcreated_atを使ってファイル名をハッシュ化
+      // 画像の拡張子を取得
+      $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
+      
+      ImageFileHelper::saveImageFile(ImageFileHelper::hashedFileName($postData), $extension);
 
       return new JSONRenderer(['status' => 'success', 'message' => 'Part updated successfully']);
     } catch (\InvalidArgumentException $e) {
