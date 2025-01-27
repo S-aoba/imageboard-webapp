@@ -8,7 +8,7 @@
         <!-- Tailwind CSS -->
         <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 
-        <title>My Computer Parts Store</title>
+        <title>Imageboard Web App</title>
     </head>
     <body class="w-full h-full flex flex-col bg-slate-100">
         <main class="h-full w-full flex-1">
