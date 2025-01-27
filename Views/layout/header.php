@@ -10,5 +10,5 @@
 
         <title>My Computer Parts Store</title>
     </head>
-    <body class="w-full h-full bg-green-50">
-        <main class="bg-red-50 w-full">
+    <body class="w-full h-full flex flex-col bg-slate-100">
+        <main class="h-full w-full flex-1">
