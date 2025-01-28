@@ -2,11 +2,11 @@
 
 use Helpers\DatabaseHelper;
 use Helpers\ValidationHelper;
-use Models\ComputerPart;
 use Response\HTTPRenderer;
 use Response\Render\HTMLRenderer;
 use Response\Render\JSONRenderer;
-use Database\DataAccess\Implementations\ComputerPartDAOImpl;
+use Database\DataAccess\Implementations\PostDAOImpl;
+use Models\Post;
 use Types\ValueType;
 
 return [
@@ -74,4 +74,46 @@ return [
     //         return new JSONRenderer(['status' => 'error', 'message' => 'An error occurred.']);
     //     }
     // },
+    '' => function(): HTTPRenderer {
+        return new HTMLRenderer('component/home');
+    },
+    'form/update/post' => function(): HTTPRenderer {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Invalid request method!');
+            }
+
+            $required_fields = [
+                'subject' => ValueType::STRING,
+                'content' => ValueType::STRING
+            ];
+            // error_log(var_export($_POST, true));
+            
+            $postDAO = new PostDAOImpl();
+            
+            $_POST['reply_to_id'] = $_POST['reply_to_id'] === '' ? null : $_POST['reply_to_id'];
+            
+            $validatedData = ValidationHelper::validateFields($required_fields, $_POST);
+            if(isset($_POST['reply_to_id'])) $validatedData['reply_to_id'] = ValidationHelper::integer($_POST['reply_to_id']);
+            // error_log(var_export($validatedData, true));
+
+            $post = new Post(...$validatedData);
+
+            if(isset($validatedData['id'])) $success = $postDAO->update($post);
+            else $success = $postDAO->create($post);
+
+            if(!$success) {
+                throw new Exception("Database update failed!");
+            }
+
+            return new JSONRenderer(['status' => 'success']);
+        } catch (\InvalidArgumentException $e) {
+            error_log($e->getMessage());
+            return new JSONRenderer(['status' => 'error', 'message' => 'Invalid data.']);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return new JSONRenderer(['status' => 'error', 'message' => 'An error occurred.']);
+        }
+    }
+
 ];

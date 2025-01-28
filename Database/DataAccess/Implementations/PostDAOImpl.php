@@ -23,9 +23,10 @@ class PostDAOImpl implements PostDAO {
 
     $result = $mysqli->prepareAndExecute(
       $query,
-      'issi',
+      'iissi',
       [
         $postData->getId(),
+        $postData->getReplyToId(),
         $postData->getSubject(),
         $postData->getContent(),
         $postData->getId()
@@ -45,7 +46,8 @@ class PostDAOImpl implements PostDAO {
 
   public function create(Post $postData): bool
   {
-    return false;
+    if($postData->getId() !== null) throw new \Exception('Cannot create a post with an existing ID. id: ' . $postData->getId());
+        return $this->createOrUpdate($postData);
   }
 
   public function getById(int $id): ?Post
@@ -55,7 +57,12 @@ class PostDAOImpl implements PostDAO {
 
   public function update(Post $postData): bool
   {
-    return false;
+    if($postData->getId() === null) throw new \Exception('Post specified has no ID.');
+
+    $current = $this->getById($postData->getId());
+    if($current === null) throw new \Exception(sprintf("Post %s does not exist.", $postData->getId()));
+
+    return $this->createOrUpdate($postData);
   }
 
   public function delete(int $id): bool

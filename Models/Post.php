@@ -2,7 +2,6 @@
 
 namespace Models;
 
-use DateTime;
 use Models\Interfaces\Model;
 use Models\Traits\GenericModel;
 
@@ -12,7 +11,8 @@ class Post implements Model {
   public function __construct(
     private string $subject,
     private string $content,
-    private ?int $id,
+    private ?int $id = null,
+    private ?int $reply_to_id = null,
     private ?DataTimeStamp $timeStamp = null,
   ){}
 
@@ -22,6 +22,14 @@ class Post implements Model {
 
   public function setId(int $id): void {
       $this->id = $id;
+  }
+
+  public function getReplyToId(): ?int {
+    return $this->reply_to_id;
+  }
+
+  public function setReplyToId(int $reply_to_id): void {
+      $this->reply_to_id = $reply_to_id;
   }
 
   public function getSubject(): string {
