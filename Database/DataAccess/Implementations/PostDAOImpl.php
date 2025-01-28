@@ -4,6 +4,7 @@ namespace Database\DataAccess\Implementations;
 
 use Database\DataAccess\Interfaces\PostDAO;
 use Database\DatabaseManager;
+use Helpers\DatabaseHelper;
 use Models\DataTimeStamp;
 use Models\Post;
 
@@ -72,10 +73,35 @@ class PostDAOImpl implements PostDAO {
 
   public function getAllThreads(int $offset, int $limit): array
   {
-    return [];
+    $mysqli = DatabaseManager::getMysqliConnection();
+
+    $query = "SELECT * FROM posts LIMIT ?, ?";
+    $results = $mysqli->prepareAndFetchAll($query, 'ii', [$offset, $limit]);
+    return $results === null ? [] : $this->resultsToPosts($results);
   }
+
   public function getReplies(Post $postData, int $offset, int $limit): array
   {
     return [];
+  }
+
+  private function resultsToPosts(array $results): array {
+    $posts = [];
+
+    foreach($results as $result) {
+      $posts[] = $this->resultToPost($result);
+    }
+
+    return $posts;
+  }
+
+  private function resultToPost(array $data): Post {
+    return new Post (
+      subject: $data['subject'],
+      content: $data['content'],
+      reply_to_id: $data['reply_to_id'],
+      id: $data['id'],
+      timeStamp: new DataTimeStamp($data['created_at'], $data['updated_at'])
+    );
   }
 }

@@ -75,7 +75,11 @@ return [
     //     }
     // },
     '' => function(): HTTPRenderer {
-        return new HTMLRenderer('component/home');
+        $postDAO = new PostDAOImpl();
+        $posts = $postDAO->getAllThreads(0, 10);
+        // error_log(var_export($posts, true));
+
+        return new HTMLRenderer('component/home', ['posts' => $posts]);
     },
     'form/update/post' => function(): HTTPRenderer {
         try {
