@@ -15,12 +15,17 @@
       <?php foreach($posts as $post): ?>
         <div class="w-96 border border-dotted p-4">
           <div>
-            <p class="text-xl font-semibold">Subject : <?= $post->getSubject() ?></p>
+            <p class="text-xl font-semibold">Subject : <?= $post->getSubject(); ?></p>
           </div>
           <hr class="my-6">
           <div>
-            <p class="text-sm font-semibold">Content : <?= $post->getContent() ?></p>
+            <p class="text-sm font-semibold">Content : <?= $post->getContent(); ?></p>
           </div>
+          <hr class="my-3">
+          <div class="w-full pt-2 text-end">
+            <button class="open-reply-button text-sm text-slate-500 hover:text-slate-900" data-id=<?= $post->getId(); ?>>show reply</button>
+          </div>
+          <div id="reply-content" class="flex flex-col space-y-4"></div>
         </div>
       <?php endforeach; ?>
     <?php else :?>
@@ -41,8 +46,6 @@
 
       const formData = new FormData(form);
       // console.log(form);
-      
-      
       const url = '/form/update/post';
 
       fetch(url, {
@@ -60,7 +63,46 @@
       })
     });
 
+    const replyButtons = document.querySelectorAll('.open-reply-button');
+    replyButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.getAttribute('data-id');
+        // console.log(id);
+        const url = '/reply';
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({'id': id}),
+        })
+        .then(response => response.json())
+        .then((data) => {
+          console.log(data.replies);
+          const replies = data.replies;
 
+          const replyContent = document.getElementById('reply-content');
+          if(replies.length > 0) {
+            replies.forEach(reply => {
+              replyContent.innerHTML += 
+              `
+              <div class="w-96 border border-2 border-green-500 p-4">
+                <div>
+                  <p class="text-xl font-semibold">Subject : ${reply['subject']}</p>
+                </div>
+                <hr class="my-6">
+                <div>
+                  <p class="text-sm font-semibold">Content : ${reply['content']}</p>
+                </div>
+              </div>
+              `
+            });
+          }
+        })
+
+      })
+    })
+    
 
 
 

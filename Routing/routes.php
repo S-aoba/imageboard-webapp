@@ -77,9 +77,33 @@ return [
     '' => function(): HTTPRenderer {
         $postDAO = new PostDAOImpl();
         $posts = $postDAO->getAllThreads(0, 10);
-        // error_log(var_export($posts, true));
+        // error_log(var_export($posts, true));        
 
         return new HTMLRenderer('component/home', ['posts' => $posts]);
+    },
+    'reply' => function(): HTTPRenderer {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $id = $data['id'] ?? null;
+        // error_log(var_export($data, true));
+        if(isset($id) === null) {
+            return new HTMLRenderer('component/error');
+        }
+
+        $postDAO = new PostDAOImpl();
+        $post = $postDAO->getPostById($id);
+
+        $replies = $postDAO->getReplies($post, 0 , 10);
+        // error_log(var_export($replies, true));
+
+        $output = [];
+        foreach($replies as $reply) {
+            $output[] = [
+                'subject' => $reply->getSubject(),
+                'content' => $reply->getContent()
+            ];
+        }
+        
+        return new JSONRenderer(['replies' => $output]);
     },
     'form/update/post' => function(): HTTPRenderer {
         try {

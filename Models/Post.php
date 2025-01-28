@@ -57,4 +57,8 @@ class Post implements Model {
   {
       $this->timeStamp = $timeStamp;
   }
+
+  public function toString(): string {
+    return $this->toString();
+  }
 }

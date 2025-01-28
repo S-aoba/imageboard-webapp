@@ -80,9 +80,24 @@ class PostDAOImpl implements PostDAO {
     return $results === null ? [] : $this->resultsToPosts($results);
   }
 
+  public function getPostById(int $id): Post {
+    $mysqli = DatabaseManager::getMysqliConnection();
+
+    $query = "SELECT * FROM posts where id = ?";
+    $results = $mysqli->prepareAndFetchAll($query, 'i', [$id]);
+    // error_log(var_export($results, true));
+
+    return $results === null ? [] : $this->resultToPost($results[0]);
+  }
+
   public function getReplies(Post $postData, int $offset, int $limit): array
   {
-    return [];
+    $mysqli = DatabaseManager::getMysqliConnection();
+
+    $query = "SELECT * FROM posts WHERE reply_to_id = ? LIMIT ?, ?";
+    $results = $mysqli->prepareAndFetchAll($query, 'iii', [$postData->getId(), $offset, $limit]);
+    
+    return $results === null ? [] : $this->resultsToPosts($results);
   }
 
   private function resultsToPosts(array $results): array {
