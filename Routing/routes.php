@@ -142,6 +142,43 @@ return [
             error_log($e->getMessage());
             return new JSONRenderer(['status' => 'error', 'message' => 'An error occurred.']);
         }
+    },
+    'form/update/reply' => function(): HTTPRenderer {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new Exception('Invalid request method!');
+            }
+            // error_log(var_export($_POST, true));
+
+            $required_fields = [
+                'content' => ValueType::STRING
+            ];
+    
+            $validatedData = ValidationHelper::validateFields($required_fields, $_POST);
+    
+            if(isset($_POST['reply_to_id'])) $validatedData['reply_to_id'] = ValidationHelper::integer($_POST['reply_to_id']);
+            // error_log(var_export($validatedData, true));
+            
+            // 返信を保存
+            $postDAO = new PostDAOImpl();
+            $post = new Post(...$validatedData);
+            // error_log(var_export($post->getReplyToId(), true));
+    
+            if(isset($validatedData['id'])) $success = $postDAO->update($post);
+            else $success = $postDAO->create($post);
+    
+            if(!$success) {
+                throw new Exception("Database update failed!");
+            }
+    
+            return new JSONRenderer(['status' => 'success']);
+        } catch (\InvalidArgumentException $e) {
+            error_log($e->getMessage());
+            return new JSONRenderer(['status' => 'error', 'message' => 'Invalid data.']);
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return new JSONRenderer(['status' => 'error', 'message' => 'An error occurred.']);
+        }
     }
 
 ];
