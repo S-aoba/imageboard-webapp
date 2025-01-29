@@ -32,7 +32,7 @@ class Post implements Model {
       $this->reply_to_id = $reply_to_id;
   }
 
-  public function getSubject(): string {
+  public function getSubject(): ?string {
     return $this->subject;
   }
 
